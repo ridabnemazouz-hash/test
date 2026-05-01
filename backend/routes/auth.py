@@ -34,6 +34,11 @@ def require_super_admin(current_user: UserDB = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Only Super Admin can perform this action")
     return current_user
 
+def require_admin_or_super(current_user: UserDB = Depends(get_current_user)):
+    if current_user.role not in ["Admin", "Super Admin"]:
+        raise HTTPException(status_code=403, detail="Only Admin or Super Admin can perform this action")
+    return current_user
+
 @router.options("/login")
 @router.options("/register")
 @router.options("/add-admin")
@@ -41,6 +46,31 @@ def require_super_admin(current_user: UserDB = Depends(get_current_user)):
 @router.options("/reject/{user_id}")
 def options_handler():
     return Response(status_code=200)
+
+@router.get("/users")
+def get_users_by_role(role: str, db: Session = Depends(get_db)):
+    users = db.query(UserDB).filter(UserDB.role == role, UserDB.status == "Active").all()
+    result = []
+    for user in users:
+        result.append({
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role,
+            "status": user.status,
+            "addedDate": user.created_at.strftime("%Y-%m-%d") if user.created_at else "",
+            "avatar": f"https://ui-avatars.com/api/?name={user.name.replace(' ', '+')}&background=6366f1&color=fff"
+        })
+    return result
+
+@router.delete("/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db), current_user: UserDB = Depends(require_admin_or_super)):
+    user = db.query(UserDB).filter(UserDB.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    db.delete(user)
+    db.commit()
+    return {"message": "User deleted successfully"}
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
@@ -106,6 +136,41 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": user.email, "role": user.role})
     return {"access_token": access_token, "token_type": "bearer", "user": {"id": user.id, "name": user.name, "role": user.role, "email": user.email}}
 
+@router.get("/admins")
+def get_admins(db: Session = Depends(get_db)):
+    users = db.query(UserDB).filter(UserDB.role.in_(["Admin", "Super Admin"])).all()
+    result = []
+    for user in users:
+        result.append({
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role,
+            "status": user.status,
+            "addedDate": user.created_at.strftime("%Y-%m-%d") if user.created_at else "",
+            "avatar": f"https://ui-avatars.com/api/?name={user.name.replace(' ', '+')}&background=6366f1&color=fff"
+        })
+    return result
+
+@router.delete("/admins/{user_id}")
+def delete_admin(user_id: int, db: Session = Depends(get_db), current_user: UserDB = Depends(require_super_admin)):
+    user = db.query(UserDB).filter(UserDB.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Admin not found")
+    db.delete(user)
+    db.commit()
+    return {"message": "Admin deleted successfully"}
+
+@router.put("/admins/{user_id}/toggle-status")
+def toggle_admin_status(user_id: int, db: Session = Depends(get_db), current_user: UserDB = Depends(require_super_admin)):
+    user = db.query(UserDB).filter(UserDB.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Admin not found")
+    user.status = "Inactive" if user.status == "Active" else "Active"
+    db.commit()
+    db.refresh(user)
+    return {"id": user.id, "status": user.status}
+
 @router.get("/pending-requests")
 def get_pending_requests(db: Session = Depends(get_db)):
     users = db.query(UserDB).filter(UserDB.status == "Pending").all()
@@ -124,7 +189,7 @@ def get_pending_requests(db: Session = Depends(get_db)):
     return result
 
 @router.put("/approve/{user_id}")
-def approve_user(user_id: int, db: Session = Depends(get_db), current_user: UserDB = Depends(require_super_admin)):
+def approve_user(user_id: int, db: Session = Depends(get_db), current_user: UserDB = Depends(require_admin_or_super)):
     user = db.query(UserDB).filter(UserDB.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -138,7 +203,7 @@ def approve_user(user_id: int, db: Session = Depends(get_db), current_user: User
     return {"message": "User approved successfully", "id": user.id, "status": user.status, "name": user.name, "email": user.email}
 
 @router.put("/reject/{user_id}")
-def reject_user(user_id: int, db: Session = Depends(get_db), current_user: UserDB = Depends(require_super_admin)):
+def reject_user(user_id: int, db: Session = Depends(get_db), current_user: UserDB = Depends(require_admin_or_super)):
     user = db.query(UserDB).filter(UserDB.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

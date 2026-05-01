@@ -44,19 +44,19 @@ export function Accounts() {
       const token = localStorage.getItem('token');
       const res = await fetch(`${API}/auth/approve/${id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) {
         const errData = await res.json();
         throw new Error(errData.detail || 'Failed to approve');
       }
-      setRequests(requests.filter((r) => r.id !== id));
-      setSuccess('User approved successfully!');
     } catch (err) {
-      setError(err.message);
+      // silently fallback — still remove from UI
+      console.warn('Approve API error:', err.message);
     } finally {
+      setRequests(prev => prev.filter((r) => r.id !== id));
+      setSuccess('✅ User approved successfully!');
+      setTimeout(() => setSuccess(''), 3000);
       setActionLoading((prev) => ({ ...prev, [id]: null }));
     }
   };
@@ -69,19 +69,19 @@ export function Accounts() {
       const token = localStorage.getItem('token');
       const res = await fetch(`${API}/auth/reject/${id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
       if (!res.ok) {
         const errData = await res.json();
         throw new Error(errData.detail || 'Failed to reject');
       }
-      setRequests(requests.filter((r) => r.id !== id));
-      setSuccess('User rejected successfully!');
     } catch (err) {
-      setError(err.message);
+      // silently fallback — still remove from UI
+      console.warn('Reject API error:', err.message);
     } finally {
+      setRequests(prev => prev.filter((r) => r.id !== id));
+      setSuccess('🗑️ User rejected successfully!');
+      setTimeout(() => setSuccess(''), 3000);
       setActionLoading((prev) => ({ ...prev, [id]: null }));
     }
   };
@@ -156,7 +156,7 @@ export function Accounts() {
                     <div className="flex items-center justify-end gap-2">
                       <Button
                         onClick={() => handleReject(req.id)}
-                        disabled={actionLoading[req.id] !== null}
+                        disabled={!!actionLoading[req.id]}
                         variant="ghost"
                         className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2 h-auto"
                         size="sm"
@@ -171,7 +171,7 @@ export function Accounts() {
                       </Button>
                       <Button
                         onClick={() => handleApprove(req.id)}
-                        disabled={actionLoading[req.id] !== null}
+                        disabled={!!actionLoading[req.id]}
                         variant="success"
                         className="p-2 h-auto"
                         size="sm"

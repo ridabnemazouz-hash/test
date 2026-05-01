@@ -1,12 +1,12 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from database import Base
 import datetime
 from pydantic import BaseModel, EmailStr
+from typing import Optional, List
 
-# SQLAlchemy Model (DB Table)
+# SQLAlchemy Models
 class UserDB(Base):
     __tablename__ = "users"
-
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
@@ -15,7 +15,25 @@ class UserDB(Base):
     status = Column(String, default="Pending")
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
-# Pydantic Models (Validation)
+class StudentDB(Base):
+    __tablename__ = "students"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    grade = Column(String)
+    student_class = Column(String)
+    attendance = Column(String, default="100%")
+    gpa = Column(String, default="0.0")
+
+class MessageDB(Base):
+    __tablename__ = "messages"
+    id = Column(Integer, primary_key=True, index=True)
+    sender_id = Column(Integer)
+    receiver_id = Column(Integer)
+    content = Column(String)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    is_read = Column(Boolean, default=False)
+
+# Pydantic Schemas
 class UserCreate(BaseModel):
     name: str
     email: EmailStr
@@ -30,20 +48,24 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
-# Student Models
-class StudentDB(Base):
-    __tablename__ = "students"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    grade = Column(String)
-    student_class = Column(String)
-    attendance = Column(String, default="100%")
-    gpa = Column(String, default="0.0")
-
 class StudentCreate(BaseModel):
     name: str
     grade: str
     student_class: str
     attendance: str = "100%"
     gpa: str = "0.0"
+
+class MessageBase(BaseModel):
+    receiver_id: int
+    content: str
+
+class MessageCreate(MessageBase):
+    pass
+
+class Message(MessageBase):
+    id: int
+    sender_id: int
+    timestamp: datetime.datetime
+    is_read: bool
+    class Config:
+        from_attributes = True

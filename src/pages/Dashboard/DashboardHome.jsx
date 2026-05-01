@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Users, GraduationCap, BookOpen, TrendingUp } from 'lucide-react';
+import { Users, GraduationCap, BookOpen, TrendingUp, Calendar, ArrowUpRight, Bell, Target, Award } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/Card';
 import { useAuth } from '../../context/AuthContext';
 import { 
-  BarChart, 
-  Bar, 
+  AreaChart, 
+  Area, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -12,12 +12,12 @@ import {
   ResponsiveContainer 
 } from 'recharts';
 
-const data = [
-  { name: 'Mon', attendance: 95 },
-  { name: 'Tue', attendance: 97 },
-  { name: 'Wed', attendance: 96 },
-  { name: 'Thu', attendance: 94 },
-  { name: 'Fri', attendance: 98 },
+const attendanceData = [
+  { name: 'Mon', value: 92 },
+  { name: 'Tue', value: 95 },
+  { name: 'Wed', value: 88 },
+  { name: 'Thu', value: 96 },
+  { name: 'Fri', value: 94 },
 ];
 
 const API = 'http://localhost:8000';
@@ -50,116 +50,170 @@ export function DashboardHome() {
     }
   };
 
-  const renderStats = () => {
-    if (user.role === 'Student' || user.role === 'Parent') {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <StatCard title="GPA" value="3.8" icon={TrendingUp} color="mauve" />
-          <StatCard title="Attendance" value="95%" icon={Users} color="green" />
-          <StatCard title="Total Classes" value="8" icon={BookOpen} color="blue" />
-        </div>
-      );
-    }
-
-    if (loading) {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6 flex items-center">
-                <div className="w-12 h-12 rounded-xl bg-slate-200 mr-4"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-slate-200 rounded w-20 mb-2"></div>
-                  <div className="h-6 bg-slate-200 rounded w-12"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      );
-    }
-    
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <StatCard title="Total Students" value={stats.totalStudents} icon={Users} color="mauve" />
-        <StatCard title="Total Teachers" value={stats.totalTeachers} icon={GraduationCap} color="blue" />
-        <StatCard title="Total Classes" value={stats.totalClasses} icon={BookOpen} color="orange" />
-        <StatCard title="Avg Attendance" value={`${stats.averageAttendance}%`} icon={TrendingUp} color="green" />
-      </div>
-    );
-  };
+  const isAdmin = user.role === 'Admin' || user.role === 'Super Admin';
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Welcome back, {user.name} 👋</h1>
-        <p className="text-slate-500 mt-1">Here is what's happening in your school today.</p>
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+            Marhaba, {user.name} <span className="inline-block animate-bounce-slow">👋</span>
+          </h1>
+          <p className="text-slate-500 mt-1 font-medium italic">"Education is the most powerful weapon which you can use to change the world."</p>
+        </div>
+        <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+            <Calendar size={20} />
+          </div>
+          <div className="pr-4">
+            <p className="text-[10px] uppercase font-black text-slate-400 tracking-wider leading-none mb-1">Today's Date</p>
+            <p className="text-sm font-bold text-slate-700 leading-none">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+          </div>
+        </div>
       </div>
 
-      {renderStats()}
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {isAdmin ? (
+          <>
+            <StatCard title="Total Students" value={stats.totalStudents} icon={Users} color="indigo" trend="+2.5%" />
+            <StatCard title="Active Teachers" value={stats.totalTeachers} icon={GraduationCap} color="rose" trend="+12" />
+            <StatCard title="Current Classes" value={stats.totalClasses} icon={BookOpen} color="amber" trend="0%" />
+            <StatCard title="Avg Attendance" value={`${stats.averageAttendance}%`} icon={TrendingUp} color="emerald" trend="+1.2%" />
+          </>
+        ) : (
+          <>
+            <StatCard title="Current GPA" value="16.5" icon={Target} color="indigo" trend="+0.5" />
+            <StatCard title="My Attendance" value="98%" icon={Users} color="emerald" trend="Optimal" />
+            <StatCard title="Lessons Done" value="24" icon={BookOpen} color="amber" trend="+3 this week" />
+            <StatCard title="Class Rank" value="#3" icon={Award} color="rose" trend="Top 10%" />
+          </>
+        )}
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <div className="p-6 border-b border-slate-100">
-            <h3 className="text-lg font-semibold text-slate-800">Attendance Overview</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Chart */}
+        <Card className="lg:col-span-2 overflow-hidden border-0 shadow-xl shadow-slate-200/50">
+          <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-white">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">School Activity Overview</h3>
+              <p className="text-xs text-slate-400 font-medium">Daily attendance fluctuations this week</p>
+            </div>
+            <select className="bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-500 py-2 px-4 focus:ring-0 cursor-pointer">
+              <option>Last 7 Days</option>
+              <option>Last 30 Days</option>
+            </select>
           </div>
-          <CardContent>
-            <div className="h-72 w-full mt-4">
+          <div className="p-6 bg-white">
+            <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b'}} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
-                  <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                  <Bar dataKey="attendance" fill="#8f5c8f" radius={[4, 4, 0, 0]} maxBarSize={40} />
-                </BarChart>
+                <AreaChart data={attendanceData}>
+                  <defs>
+                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 600}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 600}} />
+                  <Tooltip 
+                    contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '12px'}} 
+                    cursor={{stroke: '#6366f1', strokeWidth: 2, strokeDasharray: '5 5'}}
+                  />
+                  <Area type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorValue)" />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
-        <Card>
-          <div className="p-6 border-b border-slate-100">
-            <h3 className="text-lg font-semibold text-slate-800">Recent Notifications</h3>
-          </div>
-          <CardContent className="p-0">
-            <div className="divide-y divide-slate-100">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="p-4 flex items-start hover:bg-slate-50 transition-colors">
-                  <div className="w-2 h-2 rounded-full bg-mauve-500 mt-2 mr-3 shrink-0"></div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-800">New Assignment Posted</p>
-                    <p className="text-xs text-slate-500 mt-1">Mathematics 101 - Due in 2 days</p>
-                  </div>
-                </div>
-              ))}
+        {/* Right Column: Notifications/Activity */}
+        <div className="space-y-8">
+          <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
+            <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-800">Quick Actions</h3>
             </div>
-          </CardContent>
-        </Card>
+            <div className="p-4 grid grid-cols-2 gap-3">
+              <QuickAction icon={PlusIcon} label="Add Student" color="bg-indigo-50 text-indigo-600" />
+              <QuickAction icon={BookOpen} label="New Lesson" color="bg-rose-50 text-rose-600" />
+              <QuickAction icon={Calendar} label="Schedule" color="bg-amber-50 text-amber-600" />
+              <QuickAction icon={Bell} label="Notify All" color="bg-emerald-50 text-emerald-600" />
+            </div>
+          </Card>
+
+          <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
+            <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-800">Pending Approvals</h3>
+              <span className="bg-rose-100 text-rose-600 text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider animate-pulse">4 New</span>
+            </div>
+            <div className="p-0">
+              <div className="divide-y divide-slate-50">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors cursor-pointer group">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-400 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                      {['JS', 'MK', 'OL'][i-1]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-slate-800 truncate">New Account Request</p>
+                      <p className="text-[10px] text-slate-400 font-medium">Applied for Teacher role · 2h ago</p>
+                    </div>
+                    <ArrowUpRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                  </div>
+                ))}
+              </div>
+              <div className="p-4 bg-slate-50/50">
+                <button className="w-full py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm">
+                  View All Requests
+                </button>
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
 }
 
-function StatCard({ title, value, icon: Icon, color }) {
+function StatCard({ title, value, icon: Icon, color, trend }) {
   const colors = {
-    mauve: 'bg-mauve-100 text-mauve-600',
-    blue: 'bg-blue-100 text-blue-600',
-    orange: 'bg-orange-100 text-orange-600',
-    green: 'bg-green-100 text-green-600',
+    indigo: 'bg-indigo-500 shadow-indigo-200',
+    rose: 'bg-rose-500 shadow-rose-200',
+    amber: 'bg-amber-500 shadow-amber-200',
+    emerald: 'bg-emerald-500 shadow-emerald-200',
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6 flex items-center">
-        <div className={`p-4 rounded-xl mr-4 ${colors[color]}`}>
-          <Icon size={24} />
+    <Card className="border-0 shadow-xl shadow-slate-200/40 overflow-hidden hover:translate-y-[-4px] transition-all duration-300 group">
+      <div className="p-6 flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`p-3 rounded-2xl text-white shadow-lg ${colors[color]} group-hover:scale-110 transition-transform`}>
+            <Icon size={24} />
+          </div>
+          <span className={`text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider ${
+            trend.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'
+          }`}>
+            {trend}
+          </span>
         </div>
-        <div>
-          <p className="text-sm font-medium text-slate-500">{title}</p>
-          <h4 className="text-2xl font-bold text-slate-800 mt-1">{value}</h4>
-        </div>
-      </CardContent>
+        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{title}</p>
+        <h4 className="text-3xl font-black text-slate-800 tracking-tight">{value}</h4>
+      </div>
     </Card>
+  );
+}
+
+function QuickAction({ icon: Icon, label, color }) {
+  return (
+    <button className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all hover:scale-105 active:scale-95 ${color}`}>
+      <Icon size={20} />
+      <span className="text-[10px] font-bold mt-2 text-center leading-tight">{label}</span>
+    </button>
+  );
+}
+
+function PlusIcon(props) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
   );
 }

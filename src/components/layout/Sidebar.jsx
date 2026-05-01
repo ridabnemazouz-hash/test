@@ -13,7 +13,7 @@ export function Sidebar() {
   const getNavItems = () => {
     const items = [
       { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
-      { name: 'Admins', path: '/admins', icon: Users, roles: ['Super Admin'] },
+      { name: 'Admins', path: '/admins', icon: Users, roles: ['Super Admin', 'Admin'] },
       
       // Admin
       { name: 'Students', path: '/students', icon: Users, roles: ['Admin'] },
@@ -35,8 +35,8 @@ export function Sidebar() {
       // Shared
       { name: 'Grades', path: '/grades', icon: FileText, roles: ['Admin', 'Teacher', 'Student', 'Parent'] },
       { name: 'Attendance', path: '/attendance', icon: CalendarCheck, roles: ['Admin', 'Teacher', 'Student', 'Parent'] },
-      { name: 'Lessons & Devoirs', path: '/content', icon: FileDown, roles: ['Teacher', 'Student', 'Parent'] },
-      { name: 'Chat', path: '/chat', icon: MessageSquare, roles: ['Teacher', 'Student', 'Parent'] },
+      { name: 'Lessons & Devoirs', path: '/content', icon: FileDown, roles: ['Admin', 'Teacher', 'Student', 'Parent'] },
+      { name: 'Chat', path: '/chat', icon: MessageSquare, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
       { name: 'Settings', path: '/settings', icon: Settings, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
     ];
     return items.filter(item => item.roles.includes(user?.role));
