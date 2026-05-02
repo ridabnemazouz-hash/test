@@ -104,6 +104,14 @@ export function Chat() {
     'Parent': 'bg-amber-100 text-amber-600',
   };
 
+  const getSenderName = (msg) => {
+    if (msg.is_group) {
+      const contact = contacts.find(c => c.id === msg.sender_id);
+      return contact?.name || 'Unknown';
+    }
+    return null;
+  };
+
   return (
     <div className="h-[calc(100vh-8rem)] flex bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
       {/* Contacts Sidebar */}
@@ -136,10 +144,16 @@ export function Chat() {
               }`}
             >
               <div className="relative shrink-0">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${activeContact?.id === contact.id ? 'bg-white/20' : (roleColors[contact.role] || 'bg-slate-100 text-slate-600')}`}>
-                  {contact.name.charAt(0)}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${
+                  contact.is_group 
+                    ? (activeContact?.id === contact.id ? 'bg-white/20' : 'bg-indigo-100 text-indigo-600')
+                    : (activeContact?.id === contact.id ? 'bg-white/20' : (roleColors[contact.role] || 'bg-slate-100 text-slate-600'))
+                }`}>
+                  {contact.is_group ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  ) : contact.name.charAt(0)}
                 </div>
-                {contact.online && <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 rounded-full shadow-sm ${activeContact?.id === contact.id ? 'border-mauve-500' : 'border-slate-50'}`}></div>}
+                {!contact.is_group && contact.online && <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 rounded-full shadow-sm ${activeContact?.id === contact.id ? 'border-mauve-500' : 'border-slate-50'}`}></div>}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-baseline mb-0.5">
@@ -157,12 +171,18 @@ export function Chat() {
         <div className="flex-1 flex flex-col bg-white">
           <div className="h-16 border-b border-slate-100 px-6 flex items-center justify-between bg-white">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${roleColors[activeContact.role] || 'bg-slate-100 text-slate-600'}`}>
-                {activeContact.name.charAt(0)}
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm ${
+                activeContact.is_group 
+                  ? 'bg-indigo-100 text-indigo-600'
+                  : (roleColors[activeContact.role] || 'bg-slate-100 text-slate-600')
+              }`}>
+                {activeContact.is_group ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                ) : activeContact.name.charAt(0)}
               </div>
               <div>
                 <h3 className="font-semibold text-slate-800">{activeContact.name}</h3>
-                <p className="text-xs text-green-500">Online</p>
+                <p className="text-xs text-green-500">{activeContact.role}</p>
               </div>
             </div>
             <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
@@ -178,6 +198,7 @@ export function Chat() {
               </div>
             ) : messages.map((msg) => {
               const isMine = user && msg.sender_id === user.id;
+              const senderName = getSenderName(msg);
               return (
                 <div key={msg.id} className={`flex gap-2 max-w-[75%] ${isMine ? 'ml-auto flex-row-reverse' : ''}`}>
                   <div className={`p-3 rounded-2xl shadow-sm ${
@@ -185,6 +206,11 @@ export function Chat() {
                       ? 'bg-mauve-500 text-white rounded-br-none shadow-mauve-100' 
                       : 'bg-white border border-slate-100 text-slate-700 rounded-bl-none shadow-slate-100'
                   }`}>
+                    {!isMine && msg.is_group && senderName && (
+                      <p className={`text-[10px] font-bold mb-1 ${
+                        isMine ? 'text-mauve-200' : 'text-indigo-500'
+                      }`}>{senderName}</p>
+                    )}
                     <p className="text-sm leading-relaxed">{msg.content}</p>
                     <span className={`text-[10px] font-medium mt-1 block ${
                       isMine ? 'text-mauve-200' : 'text-slate-400'

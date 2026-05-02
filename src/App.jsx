@@ -22,6 +22,8 @@ import { Content } from './pages/Content';
 import { Settings } from './pages/Settings';
 import { MyClasses } from './pages/MyClasses';
 import { MyStudents } from './pages/MyStudents';
+import { AITutor } from './pages/AITutor';
+import { Expenses } from './pages/Expenses';
 
 // Placeholder components for other routes
 const Placeholder = ({ title }) => (
@@ -50,6 +52,7 @@ function App() {
             <Route path="subjects" element={<Subjects />} />
             <Route path="transport" element={<Transport />} />
             <Route path="accounts" element={<Accounts />} />
+            <Route path="expenses" element={<Expenses />} />
 
             {/* Teacher Routes */}
             <Route path="my-classes" element={<MyClasses />} />
@@ -57,6 +60,7 @@ function App() {
 
             {/* Student Routes */}
             <Route path="planning" element={<Planning />} />
+            <Route path="ai-tutor" element={<AITutor />} />
 
             {/* Shared Routes */}
             <Route path="grades" element={<Grades />} />

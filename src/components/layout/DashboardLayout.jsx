@@ -13,7 +13,7 @@ export function DashboardLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 dark:bg-[var(--bg-primary)] flex transition-colors duration-300">
       <Sidebar mobileOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
         <TopNavbar onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />

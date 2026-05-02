@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bell, Search, Menu, ChevronDown, CheckCircle, XCircle, UserPlus, Clock } from 'lucide-react';
+import { Bell, Search, Menu, ChevronDown, CheckCircle, XCircle, UserPlus, Clock, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAppearance } from '../../context/AppearanceContext';
 import { languageFlags, languageNames, t } from '../../i18n/translations';
 import API from '../../config';
 
 export function TopNavbar({ onMenuToggle }) {
   const { user, switchRole } = useAuth();
   const { lang, setLang } = useLanguage();
+  const { prefs, update } = useAppearance();
   const [pendingRequests, setPendingRequests] = useState([]);
   const [langOpen, setLangOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -94,7 +96,7 @@ export function TopNavbar({ onMenuToggle }) {
   }));
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30">
+    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 transition-colors duration-300">
       <div className="flex items-center flex-1">
         <button onClick={onMenuToggle} className="md:hidden mr-3 text-slate-500 hover:text-slate-700 p-1">
           <Menu size={24} />
@@ -139,6 +141,15 @@ export function TopNavbar({ onMenuToggle }) {
             </>
           )}
         </div>
+
+        {/* Dark Mode Toggle */}
+        <button
+          onClick={() => update('theme', prefs.theme === 'dark' ? 'light' : 'dark')}
+          className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+          title={prefs.theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+        >
+          {prefs.theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
 
         {/* Notifications */}
         <div className="relative" ref={notifRef}>
@@ -232,9 +243,9 @@ export function TopNavbar({ onMenuToggle }) {
             <p className="text-xs text-slate-500 mt-1">{user?.role}</p>
           </div>
           <img 
-            src={user?.avatar} 
+            src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'U')}&background=6366f1&color=fff&size=40`} 
             alt="Profile" 
-            className="w-9 h-9 rounded-full border border-slate-200"
+            className="w-9 h-9 rounded-full border border-slate-200 object-cover"
           />
         </div>
       </div>

@@ -6,7 +6,8 @@ import { cn } from '../../utils';
 import { t } from '../../i18n/translations';
 import { 
   LayoutDashboard, Users, GraduationCap, BookOpen, FileText, 
-  CalendarCheck, Settings, LogOut, Bus, UserPlus, FileDown, MessageSquare, Calendar, CreditCard, X
+  CalendarCheck, Settings, LogOut, Bus, UserPlus, FileDown, MessageSquare, Calendar, CreditCard, X,
+  Sparkles, TrendingUp
 } from 'lucide-react';
 
 export function Sidebar({ mobileOpen = false, onClose }) {
@@ -27,6 +28,8 @@ export function Sidebar({ mobileOpen = false, onClose }) {
       myClasses: 'myClasses',
       myStudents: 'myStudents',
       planning: 'planning',
+      aiTutor: 'aiTutor',
+      expenses: 'expenses',
       payments: 'payments',
       grades: 'grades',
       attendance: 'attendance',
@@ -48,16 +51,18 @@ export function Sidebar({ mobileOpen = false, onClose }) {
       { name: t(lang, navKeys.classes), path: '/classes', icon: BookOpen, roles: ['Super Admin', 'Admin'] },
       { name: t(lang, navKeys.subjects), path: '/subjects', icon: BookOpen, roles: ['Super Admin', 'Admin'] },
       { name: t(lang, navKeys.transport), path: '/transport', icon: Bus, roles: ['Super Admin', 'Admin'] },
+      { name: t(lang, navKeys.expenses), path: '/expenses', icon: TrendingUp, roles: ['Super Admin', 'Admin'] },
 
       { name: t(lang, navKeys.myClasses), path: '/my-classes', icon: BookOpen, roles: ['Teacher'] },
       { name: t(lang, navKeys.myStudents), path: '/my-students', icon: Users, roles: ['Teacher'] },
       
       { name: t(lang, navKeys.planning), path: '/planning', icon: Calendar, roles: ['Student', 'Parent'] },
+      { name: t(lang, navKeys.aiTutor), path: '/ai-tutor', icon: Sparkles, roles: ['Student', 'Teacher', 'Parent'] },
       { name: t(lang, navKeys.payments), path: '/payments', icon: CreditCard, roles: ['Super Admin', 'Admin', 'Parent'] },
 
-      { name: t(lang, navKeys.grades), path: '/grades', icon: FileText, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
-      { name: t(lang, navKeys.attendance), path: '/attendance', icon: CalendarCheck, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
-      { name: t(lang, navKeys.lessons), path: '/content', icon: FileDown, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
+      { name: t(lang, navKeys.grades), path: '/grades', icon: FileText, roles: ['Teacher', 'Student', 'Parent'] },
+      { name: t(lang, navKeys.attendance), path: '/attendance', icon: CalendarCheck, roles: ['Teacher', 'Student', 'Parent'] },
+      { name: t(lang, navKeys.lessons), path: '/content', icon: FileDown, roles: ['Teacher', 'Student', 'Parent'] },
       { name: t(lang, navKeys.chat), path: '/chat', icon: MessageSquare, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
       { name: t(lang, navKeys.settings), path: '/settings', icon: Settings, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
     ];

@@ -1,25 +1,41 @@
 import React, { useState } from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { User, Lock, Bell, Shield, Palette, Globe, Mail, Phone, Camera, Check, Sun, Moon, Monitor, Type, Layout, Columns, CornerDownLeft } from 'lucide-react';
+import { User, Lock, Bell, Shield, Palette, Globe, Mail, Phone, Camera, Check, Sun, Moon, Monitor, Type, Layout, Columns, CornerDownLeft, Eye, EyeOff, Download, Trash2, ShieldCheck, LockIcon, UserX } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppearance } from '../context/AppearanceContext';
+import { useAuth } from '../context/AuthContext';
 import { languageFlags, t } from '../i18n/translations';
 
 export function Settings() {
   const { lang, setLang } = useLanguage();
-  const { prefs, update, accentColors, radiusMap, fontSizeMap, densityMap } = useAppearance();
+  const { prefs, update, accentColorsMap } = useAppearance();
+  const { user, updateAvatar, removeAvatar, updateProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
-    name: 'Ahmed Super',
-    email: 'super@school.com',
-    phone: '+212 661 234 567',
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: '',
   });
   const [saved, setSaved] = useState(false);
 
   const handleAppearanceSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleAvatarUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateAvatar(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const sidebarItems = [
@@ -64,6 +80,10 @@ export function Settings() {
     { id: 'floating', label: lang === 'fr' ? 'Flottant' : 'Floating' },
   ];
 
+  const radiusMap = { none: 'rounded-none', sm: 'rounded-sm', md: 'rounded-md', lg: 'rounded-lg', xl: 'rounded-xl', '2xl': 'rounded-2xl' };
+
+  const profileAvatar = user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || user?.name || 'User')}&background=6366f1&color=fff&size=200`;
+
   return (
     <div className="space-y-6">
       <div>
@@ -95,13 +115,31 @@ export function Settings() {
               <h3 className="text-lg font-bold text-slate-800 mb-6">{t(lang, 'profile')}</h3>
               
               <div className="flex flex-col md:flex-row gap-8 mb-8">
-                <div className="relative group">
-                  <div className="w-24 h-24 rounded-2xl bg-mauve-100 flex items-center justify-center text-mauve-600 text-3xl font-bold overflow-hidden">
-                    <img src="https://ui-avatars.com/api/?name=Ahmed+Super&background=6366f1&color=fff&size=200" alt="Profile" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                <div>
+                  <div className="relative group w-28 h-28">
+                    <img src={profileAvatar} alt="Profile" className="w-28 h-28 rounded-2xl object-cover border-2 border-slate-200" />
+                    <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                       <Camera size={20} className="text-white" />
                     </div>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleAvatarUpload} 
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
                   </div>
+                  <div className="flex gap-2 mt-3">
+                    <label className="text-xs text-mauve-600 hover:text-mauve-700 font-medium cursor-pointer">
+                      {lang === 'fr' ? 'Changer' : 'Change'}
+                      <input type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+                    </label>
+                    {user?.avatar && (
+                      <button onClick={removeAvatar} className="text-xs text-red-500 hover:text-red-600 font-medium flex items-center gap-1">
+                        <Trash2 size={12} /> {lang === 'fr' ? 'Supprimer' : 'Remove'}
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">PNG, JPG max 5MB</p>
                 </div>
                 
                 <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -145,8 +183,8 @@ export function Settings() {
               </div>
 
               <div className="flex justify-end gap-3 pt-6 border-t border-slate-100">
-                <Button variant="ghost" className="text-slate-500">Cancel</Button>
-                <Button>{t(lang, 'saveChanges')}</Button>
+                <Button variant="ghost" className="text-slate-500" onClick={() => setFormData({ name: user?.name || '', email: user?.email || '', phone: '' })}>Cancel</Button>
+                <Button onClick={() => { updateProfile(formData); handleAppearanceSave(); }}>{t(lang, 'saveChanges')}</Button>
               </div>
             </Card>
           )}
@@ -238,24 +276,23 @@ export function Settings() {
                   </div>
                 </div>
                 <div className="flex gap-3 flex-wrap">
-                  {accentColors.map(color => (
+                  {Object.entries(accentColorsMap).map(([id, c]) => (
                     <button
-                      key={color.id}
-                      onClick={() => { update('accentColor', color.id); handleAppearanceSave(); }}
-                      className={`relative w-12 h-12 rounded-xl ${color.bg} transition-all ${
-                        prefs.accentColor === color.id ? 'ring-2 ring-offset-2 ring-slate-400 scale-110' : 'hover:scale-105'
+                      key={id}
+                      onClick={() => { update('accentColor', id); handleAppearanceSave(); }}
+                      className={`relative w-12 h-12 rounded-xl transition-all hover:scale-105 ${
+                        prefs.accentColor === id ? 'ring-2 ring-offset-2 ring-slate-400 scale-110' : ''
                       }`}
+                      style={{ backgroundColor: c.primary }}
                     >
-                      {prefs.accentColor === color.id && (
+                      {prefs.accentColor === id && (
                         <Check size={16} className="absolute inset-0 m-auto text-white" />
                       )}
                     </button>
                   ))}
                 </div>
-                <div className="mt-3 flex gap-2">
-                  {accentColors.filter(c => c.id === prefs.accentColor).map(c => (
-                    <span key={c.id} className="text-sm font-medium text-slate-600">{c.label}</span>
-                  ))}
+                <div className="mt-3">
+                  <span className="text-sm font-medium text-slate-600 capitalize">{prefs.accentColor}</span>
                 </div>
               </Card>
 
@@ -431,18 +468,117 @@ export function Settings() {
           {activeTab === 'notifications' && (
             <Card className="p-6">
               <h3 className="text-lg font-bold text-slate-800 mb-2">{t(lang, 'notificationsTab')}</h3>
-              <p className="text-sm text-slate-500">{t(lang, 'profileDesc')}</p>
+              <p className="text-sm text-slate-500 mb-6">{lang === 'fr' ? 'Choisissez les notifications que vous souhaitez recevoir.' : 'Choose which notifications you want to receive.'}</p>
+              
+              <div className="space-y-4">
+                {[
+                  { label: lang === 'fr' ? 'Nouvelles inscriptions' : 'New registrations', desc: lang === 'fr' ? 'Quand un utilisateur s\'inscrit' : 'When a user registers', defaultOn: true },
+                  { label: lang === 'fr' ? 'Messages' : 'Messages', desc: lang === 'fr' ? 'Nouveaux messages reçus' : 'New messages received', defaultOn: true },
+                  { label: lang === 'fr' ? 'Notes & Bulletins' : 'Grades & Reports', desc: lang === 'fr' ? 'Mise à jour des notes' : 'Grade updates', defaultOn: false },
+                  { label: lang === 'fr' ? 'Présence' : 'Attendance', desc: lang === 'fr' ? 'Alertes d\'absence' : 'Absence alerts', defaultOn: false },
+                  { label: lang === 'fr' ? 'Paiements' : 'Payments', desc: lang === 'fr' ? 'Notifications de paiement' : 'Payment notifications', defaultOn: true },
+                ].map((item, i) => (
+                  <NotificationToggle key={i} label={item.label} desc={item.desc} defaultOn={item.defaultOn} />
+                ))}
+              </div>
             </Card>
           )}
 
           {activeTab === 'privacy' && (
             <Card className="p-6">
               <h3 className="text-lg font-bold text-slate-800 mb-2">{t(lang, 'privacy')}</h3>
-              <p className="text-sm text-slate-500">{t(lang, 'profileDesc')}</p>
+              <p className="text-sm text-slate-500 mb-6">{lang === 'fr' ? 'Gérez vos paramètres de confidentialité.' : 'Manage your privacy settings.'}</p>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <ShieldCheck className="text-green-600" size={20} />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{lang === 'fr' ? 'Profil public' : 'Public Profile'}</p>
+                      <p className="text-xs text-slate-500">{lang === 'fr' ? 'Les autres utilisateurs peuvent voir votre profil' : 'Other users can see your profile'}</p>
+                    </div>
+                  </div>
+                  <ToggleSwitch />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Eye className="text-blue-600" size={20} />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{lang === 'fr' ? 'Statut en ligne' : 'Online Status'}</p>
+                      <p className="text-xs text-slate-500">{lang === 'fr' ? 'Afficher quand vous êtes connecté' : 'Show when you are online'}</p>
+                    </div>
+                  </div>
+                  <ToggleSwitch />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <EyeOff className="text-purple-600" size={20} />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{lang === 'fr' ? 'Cacher mon email' : 'Hide My Email'}</p>
+                      <p className="text-xs text-slate-500">{lang === 'fr' ? 'Personne ne peut voir votre adresse email' : 'No one can see your email address'}</p>
+                    </div>
+                  </div>
+                  <ToggleSwitch defaultOn />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <UserX className="text-orange-600" size={20} />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{lang === 'fr' ? 'Bloquer les messages' : 'Block Messages'}</p>
+                      <p className="text-xs text-slate-500">{lang === 'fr' ? 'Empêcher les messages non sollicités' : 'Prevent unsolicited messages'}</p>
+                    </div>
+                  </div>
+                  <ToggleSwitch />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Download className="text-teal-600" size={20} />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{lang === 'fr' ? 'Télécharger mes données' : 'Download My Data'}</p>
+                      <p className="text-xs text-slate-500">{lang === 'fr' ? 'Exporter toutes vos données personnelles' : 'Export all your personal data'}</p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" className="text-xs">{lang === 'fr' ? 'Exporter' : 'Export'}</Button>
+                </div>
+              </div>
             </Card>
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ToggleSwitch({ defaultOn = false }) {
+  const [on, setOn] = useState(defaultOn);
+  return (
+    <button
+      onClick={() => setOn(!on)}
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${on ? 'bg-mauve-500' : 'bg-slate-300'}`}
+    >
+      <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${on ? 'translate-x-5' : 'translate-x-0'}`} />
+    </button>
+  );
+}
+
+function NotificationToggle({ label, desc, defaultOn = false }) {
+  const [on, setOn] = useState(defaultOn);
+  return (
+    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+      <div>
+        <p className="text-sm font-semibold text-slate-800">{label}</p>
+        <p className="text-xs text-slate-500">{desc}</p>
+      </div>
+      <button
+        onClick={() => setOn(!on)}
+        className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${on ? 'bg-mauve-500' : 'bg-slate-300'}`}
+      >
+        <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${on ? 'translate-x-5' : 'translate-x-0'}`} />
+      </button>
     </div>
   );
 }

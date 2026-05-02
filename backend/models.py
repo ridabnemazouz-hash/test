@@ -42,6 +42,45 @@ class MessageDB(Base):
     content = Column(String)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
     is_read = Column(Boolean, default=False)
+    is_group = Column(Boolean, default=False)
+
+class ContentDB(Base):
+    __tablename__ = "content"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    subject = Column(String)
+    content_type = Column(String)  # PDF, Video, Link, Document
+    file_url = Column(String, nullable=True)
+    description = Column(String, nullable=True)
+    teacher_id = Column(Integer)
+    teacher_name = Column(String)
+    target_class = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class PaymentDB(Base):
+    __tablename__ = "payments"
+    id = Column(Integer, primary_key=True, index=True)
+    student_name = Column(String, index=True)
+    parent_id = Column(Integer)
+    parent_name = Column(String)
+    month = Column(String)  # e.g. "May 2026"
+    amount = Column(Integer)  # in DH
+    status = Column(String, default="Pending")  # Paid, Pending, Overdue
+    payment_method = Column(String, nullable=True)  # Cash, Credit Card, Transfer
+    payment_date = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class ExpenseDB(Base):
+    __tablename__ = "expenses"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    category = Column(String)  # Repairs, Supplies, Utilities, Transport, Other
+    amount = Column(Integer)  # in DH
+    description = Column(String, nullable=True)
+    file_url = Column(String, nullable=True)
+    created_by = Column(Integer)
+    created_by_name = Column(String)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 # Pydantic Schemas
 class UserCreate(BaseModel):
@@ -84,5 +123,74 @@ class Message(MessageBase):
     sender_id: int
     timestamp: datetime.datetime
     is_read: bool
+    is_group: bool = False
+    class Config:
+        from_attributes = True
+
+class ContentCreate(BaseModel):
+    title: str
+    subject: str
+    content_type: str
+    file_url: Optional[str] = None
+    description: Optional[str] = None
+    teacher_id: int
+    teacher_name: str
+    target_class: Optional[str] = None
+
+class ContentResponse(BaseModel):
+    id: int
+    title: str
+    subject: str
+    content_type: str
+    file_url: Optional[str] = None
+    description: Optional[str] = None
+    teacher_id: int
+    teacher_name: str
+    target_class: Optional[str] = None
+    created_at: datetime.datetime
+    class Config:
+        from_attributes = True
+
+class PaymentCreate(BaseModel):
+    student_name: str
+    month: str
+    amount: int = 1200
+    payment_method: Optional[str] = None
+
+class PaymentUpdate(BaseModel):
+    status: Optional[str] = None
+    payment_method: Optional[str] = None
+    payment_date: Optional[datetime.datetime] = None
+
+class PaymentResponse(BaseModel):
+    id: int
+    student_name: str
+    parent_id: Optional[int] = None
+    parent_name: Optional[str] = None
+    month: str
+    amount: int
+    status: str
+    payment_method: Optional[str] = None
+    payment_date: Optional[datetime.datetime] = None
+    created_at: datetime.datetime
+    class Config:
+        from_attributes = True
+
+class ExpenseCreate(BaseModel):
+    title: str
+    category: str
+    amount: int
+    description: Optional[str] = None
+
+class ExpenseResponse(BaseModel):
+    id: int
+    title: str
+    category: str
+    amount: int
+    description: Optional[str] = None
+    file_url: Optional[str] = None
+    created_by: int
+    created_by_name: str
+    created_at: datetime.datetime
     class Config:
         from_attributes = True

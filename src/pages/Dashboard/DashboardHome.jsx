@@ -141,7 +141,7 @@ export function DashboardHome() {
           </div>
         </Card>
 
-        {/* Right Column: Notifications/Activity */}
+        {/* Right Column: Quick Actions + Pending Approvals */}
         <div className="space-y-8">
           <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
             <div className="p-6 border-b border-slate-50 flex items-center justify-between">
@@ -175,33 +175,35 @@ export function DashboardHome() {
             </div>
           </Card>
 
-          <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
-            <div className="p-6 border-b border-slate-50 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-800">Pending Approvals</h3>
-              <span className="bg-rose-100 text-rose-600 text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider animate-pulse">4 New</span>
-            </div>
-            <div className="p-0">
-              <div className="divide-y divide-slate-50">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors cursor-pointer group">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-400 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
-                      {['JS', 'MK', 'OL'][i-1]}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-slate-800 truncate">New Account Request</p>
-                      <p className="text-[10px] text-slate-400 font-medium">Applied for Teacher role · 2h ago</p>
-                    </div>
-                    <ArrowUpRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
-                  </div>
-                ))}
+          {isAdmin && (
+            <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
+              <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-slate-800">Pending Approvals</h3>
+                <span className="bg-rose-100 text-rose-600 text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider animate-pulse">4 New</span>
               </div>
-              <div className="p-4 bg-slate-50/50">
-                <button className="w-full py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm">
-                  View All Requests
-                </button>
+              <div className="p-0">
+                <div className="divide-y divide-slate-50">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors cursor-pointer group">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-400 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                        {['JS', 'MK', 'OL'][i-1]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-800 truncate">New Account Request</p>
+                        <p className="text-[10px] text-slate-400 font-medium">Applied for Teacher role · 2h ago</p>
+                      </div>
+                      <ArrowUpRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                    </div>
+                  ))}
+                </div>
+                <div className="p-4 bg-slate-50/50">
+                  <button className="w-full py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm" onClick={() => navigate('/accounts')}>
+                    View All Requests
+                  </button>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          )}
         </div>
       </div>
     </div>
