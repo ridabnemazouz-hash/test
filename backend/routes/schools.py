@@ -17,9 +17,6 @@ def get_schools(db: Session = Depends(get_db), current_user=Depends(require_supe
 
 @router.post("/", response_model=SchoolResponse)
 def create_school(school: SchoolCreate, db: Session = Depends(get_db), current_user=Depends(require_super_admin)):
-    existing = db.query(SchoolDB).filter(SchoolDB.code == school.code).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="School code already exists")
     db_school = SchoolDB(**school.model_dump(exclude={"super_admin_name", "super_admin_email", "super_admin_password"}), created_at=datetime.utcnow())
     db.add(db_school)
     db.commit()
@@ -76,8 +73,6 @@ def delete_school(school_id: int, db: Session = Depends(get_db), current_user=De
     school = db.query(SchoolDB).filter(SchoolDB.id == school_id).first()
     if not school:
         raise HTTPException(status_code=404, detail="School not found")
-    if school.id == 1:
-        raise HTTPException(status_code=400, detail="Cannot delete default school")
     db.delete(school)
     db.commit()
     return {"message": "School deleted"}
