@@ -3,9 +3,8 @@ import {
   Database, Search, Edit2, Trash2, Save, X, ChevronLeft, ChevronRight,
   Loader, BarChart3, Activity, AlertTriangle, RefreshCw, Code, Table2,
   Clock, Terminal, Flag, Users, Server, Play, Download, LogOut, LogOutIcon,
-  Zap, Shield, Monitor, Command, GitBranch, Brain, Gauge, ListChecks,
-  HardDrive, CreditCard, Plug, Bell, Rss, FlaskConical, EyeOff, FileText,
-  RotateCcw, ArrowUpRight, ArrowDownRight, Lock, Ban, Eye, DatabaseBackup
+  Zap, Shield, Monitor, Command, GitBranch, Brain, Gauge,
+  HardDrive, CreditCard, Plug, Ban, Lock
 } from 'lucide-react';
 import API from '../config';
 
@@ -39,18 +38,8 @@ export function DevDB() {
   const [backups, setBackups] = useState([]);
   const [billingData, setBillingData] = useState(null);
   const [integrations, setIntegrations] = useState([]);
-  const [alertRules, setAlertRules] = useState([]);
-  const [alertNotifs, setAlertNotifs] = useState([]);
-  const [activityFeed, setActivityFeed] = useState([]);
-  const [abTests, setABTests] = useState([]);
-  const [reports, setReports] = useState([]);
-  const [migrations, setMigrations] = useState([]);
   const [newIP, setNewIP] = useState('');
   const [newIPReason, setNewIPReason] = useState('');
-  const [abForm, setABForm] = useState({ name: '', description: '', feature_key: '', traffic_split: 50 });
-  const [selectedReportType, setSelectedReportType] = useState('general');
-  const [selectedReportSchool, setSelectedReportSchool] = useState('');
-  const [reportResult, setReportResult] = useState(null);
 
   const apiFetch = async (url) => {
     try {
@@ -239,13 +228,6 @@ export function DevDB() {
     { id: 'backups', label: 'Backups', icon: HardDrive },
     { id: 'billing', label: 'Billing', icon: CreditCard },
     { id: 'integrations', label: 'Integrations', icon: Plug },
-    { id: 'alerts', label: 'Alerts', icon: Bell },
-    { id: 'feed', label: 'Live Feed', icon: Rss },
-    { id: 'ab-tests', label: 'A/B Tests', icon: FlaskConical },
-    { id: 'reports', label: 'Reports', icon: FileText },
-    { id: 'migrations', label: 'Migrations', icon: ArrowUpRight },
-    { id: 'anonymize', label: 'Anonymize', icon: EyeOff },
-    { id: 'reload', label: 'Reload', icon: RotateCcw },
   ];
 
   return (
@@ -286,11 +268,6 @@ export function DevDB() {
               if (tab.id === 'backups') apiFetch('/enterprise/backups').then(setBackups);
               if (tab.id === 'billing') apiFetch('/enterprise/billing/analytics').then(setBillingData);
               if (tab.id === 'integrations') apiFetch('/enterprise/integrations').then(setIntegrations);
-              if (tab.id === 'alerts') { Promise.all([apiFetch('/enterprise/alerts/rules').then(setAlertRules), apiFetch('/enterprise/alerts/notifications').then(setAlertNotifs)]); }
-              if (tab.id === 'feed') apiFetch('/enterprise/activity-feed').then(setActivityFeed);
-              if (tab.id === 'ab-tests') apiFetch('/enterprise/ab-tests').then(setABTests);
-              if (tab.id === 'reports') apiFetch('/enterprise/reports').then(setReports);
-              if (tab.id === 'migrations') apiFetch('/enterprise/migrations').then(setMigrations);
             }}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                 activeTab === tab.id ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'
@@ -1044,241 +1021,6 @@ export function DevDB() {
         </div>
       )}
 
-      {activeTab === 'alerts' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div><h2 className="text-sm font-semibold text-slate-800">Smart Alerts</h2><p className="text-xs text-slate-400">Monitor system health</p></div>
-            <button onClick={async () => { const res = await window.fetch(`${API}/enterprise/alerts/check`, { method: 'POST', credentials: 'include' }); if (res.ok) { const d = await res.json(); showToast(`${d.total_triggered} alerts triggered`); apiFetch('/enterprise/alerts/notifications').then(setAlertNotifs); }}} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100"><Zap size={12} /> Run Checks</button>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-              <div className="px-4 py-3 border-b border-slate-100"><h3 className="text-sm font-semibold text-slate-800">Alert Rules</h3></div>
-              <div className="divide-y divide-slate-50">
-                {alertRules.map(r => (
-                  <div key={r.id} className="px-4 py-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-slate-700">{r.name}</p>
-                      <p className="text-[10px] text-slate-400">{r.condition} &middot; {r.notification_channels}</p>
-                    </div>
-                    <button onClick={async () => { const res = await window.fetch(`${API}/enterprise/alerts/rules/${r.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ enabled: !r.enabled }) }); if (res.ok) { apiFetch('/enterprise/alerts/rules').then(setAlertRules); }}}
-                      className={`relative w-10 h-6 rounded-full transition-colors ${r.enabled ? 'bg-green-500' : 'bg-slate-300'}`}>
-                      <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${r.enabled ? 'translate-x-4' : 'translate-x-0.5'}`} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-              <div className="px-4 py-3 border-b border-slate-100"><h3 className="text-sm font-semibold text-slate-800">Notifications</h3></div>
-              <div className="divide-y divide-slate-50 max-h-[300px] overflow-y-auto">
-                {alertNotifs.length === 0 ? (
-                  <div className="px-5 py-8 text-center text-slate-400 text-sm">No notifications</div>
-                ) : (
-                  alertNotifs.map(n => (
-                    <div key={n.id} className="px-4 py-3 flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${n.severity === 'critical' ? 'bg-red-500' : n.severity === 'high' ? 'bg-orange-500' : 'bg-amber-500'}`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-700">{n.title}</p>
-                        <p className="text-[10px] text-slate-400 truncate">{n.message}</p>
-                      </div>
-                      <span className="text-[10px] text-slate-400 whitespace-nowrap">{formatTime(n.created_at)}</span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'feed' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div><h2 className="text-sm font-semibold text-slate-800">Real-Time Activity Feed</h2><p className="text-xs text-slate-400">Live system events</p></div>
-            <button onClick={() => apiFetch('/enterprise/activity-feed').then(setActivityFeed)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200"><RefreshCw size={12} /> Refresh</button>
-          </div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm divide-y divide-slate-50">
-            {activityFeed.length === 0 ? (
-              <div className="px-5 py-8 text-center text-slate-400 text-sm">No activity events</div>
-            ) : (
-              activityFeed.map(e => (
-                <div key={e.id} className="px-5 py-3 flex items-center gap-4">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    e.event_type.includes('created') ? 'bg-green-100' : e.event_type.includes('login') ? 'bg-blue-100' : e.event_type.includes('payment') ? 'bg-amber-100' : e.event_type.includes('blocked') ? 'bg-red-100' : 'bg-slate-100'
-                  }`}>
-                    <Activity size={14} className={
-                      e.event_type.includes('created') ? 'text-green-600' : e.event_type.includes('login') ? 'text-blue-600' : e.event_type.includes('payment') ? 'text-amber-600' : e.event_type.includes('blocked') ? 'text-red-600' : 'text-slate-600'
-                    } />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-700">
-                      <span className="font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded mr-2">{e.event_type}</span>
-                      {e.user_email || 'system'}
-                    </p>
-                    {e.details && <p className="text-[10px] text-slate-400 truncate">{e.details}</p>}
-                  </div>
-                  <span className="text-[10px] text-slate-400 whitespace-nowrap">{e.ago}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'ab-tests' && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div><h2 className="text-sm font-semibold text-slate-800">A/B Testing</h2><p className="text-xs text-slate-400">Experiment with features</p></div>
-          </div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-            <h3 className="text-sm font-semibold text-slate-800 mb-3">Create New Test</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <input value={abForm.name} onChange={e => setABForm(f => ({...f, name: e.target.value}))} placeholder="Test name" className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
-              <input value={abForm.feature_key} onChange={e => setABForm(f => ({...f, feature_key: e.target.value}))} placeholder="Feature key" className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
-              <input value={abForm.description} onChange={e => setABForm(f => ({...f, description: e.target.value}))} placeholder="Description" className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500">Split:</span>
-                <input type="number" value={abForm.traffic_split} onChange={e => setABForm(f => ({...f, traffic_split: parseInt(e.target.value) || 50}))} className="w-20 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
-                <span className="text-xs text-slate-400">% to B</span>
-              </div>
-            </div>
-            <button onClick={async () => { const res = await window.fetch(`${API}/enterprise/ab-tests`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(abForm) }); if (res.ok) { showToast('A/B test created'); setABForm({ name: '', description: '', feature_key: '', traffic_split: 50 }); apiFetch('/enterprise/ab-tests').then(setABTests); }}} className="mt-3 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg">Create Test</button>
-          </div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm divide-y divide-slate-50">
-            {abTests.length === 0 ? (
-              <div className="px-5 py-8 text-center text-slate-400 text-sm">No A/B tests yet</div>
-            ) : (
-              abTests.map(t => (
-                <div key={t.id} className="px-5 py-3 flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${t.status === 'running' ? 'bg-green-100' : t.status === 'completed' ? 'bg-slate-100' : 'bg-amber-100'}`}>
-                    <FlaskConical size={18} className={t.status === 'running' ? 'text-green-600' : t.status === 'completed' ? 'text-slate-600' : 'text-amber-600'} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-700">{t.name}</p>
-                    <p className="text-[10px] text-slate-400">{t.feature_key} &middot; Split: {t.traffic_split}% to B</p>
-                  </div>
-                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${t.status === 'running' ? 'bg-green-100 text-green-600' : t.status === 'completed' ? 'bg-slate-100 text-slate-600' : 'bg-amber-100 text-amber-600'}`}>{t.status}</span>
-                  {t.status === 'draft' && <button onClick={async () => { const res = await window.fetch(`${API}/enterprise/ab-tests/${t.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ status: 'running' }) }); if (res.ok) { showToast('Test started'); apiFetch('/enterprise/ab-tests').then(setABTests); }}} className="px-3 py-1.5 text-xs font-medium bg-green-100 text-green-600 rounded-lg hover:bg-green-200">Start</button>}
-                  {t.status === 'running' && <button onClick={async () => { const res = await window.fetch(`${API}/enterprise/ab-tests/${t.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ status: 'completed' }) }); if (res.ok) { showToast('Test completed'); apiFetch('/enterprise/ab-tests').then(setABTests); }}} className="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200">End</button>}
-                  <button onClick={async () => { if (confirm('Delete this test?')) { const res = await window.fetch(`${API}/enterprise/ab-tests/${t.id}`, { method: 'DELETE', credentials: 'include' }); if (res.ok) { showToast('Test deleted'); apiFetch('/enterprise/ab-tests').then(setABTests); }}}} className="p-1 text-red-500 hover:bg-red-50 rounded"><Trash2 size={14} /></button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'reports' && (
-        <div className="space-y-4">
-          <div><h2 className="text-sm font-semibold text-slate-800">Report Generator</h2><p className="text-xs text-slate-400">Generate reports per school</p></div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-            <div className="flex gap-3 flex-wrap">
-              <select value={selectedReportType} onChange={e => setSelectedReportType(e.target.value)} className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20">
-                <option value="general">General</option>
-                <option value="financial">Financial</option>
-                <option value="academic">Academic</option>
-                <option value="security">Security</option>
-              </select>
-              <input value={selectedReportSchool} onChange={e => setSelectedReportSchool(e.target.value)} placeholder="School ID (optional)" type="number" className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-40" />
-              <button onClick={async () => { const body = { report_type: selectedReportType }; if (selectedReportSchool) body.school_id = parseInt(selectedReportSchool); const res = await window.fetch(`${API}/enterprise/reports/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(body) }); if (res.ok) { const d = await res.json(); showToast('Report generated'); setReportResult(d.data); apiFetch('/enterprise/reports').then(setReports); }}} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg flex items-center gap-1"><FileText size={14} /> Generate</button>
-            </div>
-            {reportResult && (
-              <div className="mt-4 p-4 bg-slate-50 rounded-lg">
-                <h4 className="text-sm font-semibold text-slate-800 mb-2">Report Result</h4>
-                <pre className="text-xs font-mono text-slate-600 whitespace-pre-wrap">{JSON.stringify(reportResult, null, 2)}</pre>
-              </div>
-            )}
-          </div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-            <div className="px-4 py-3 border-b border-slate-100"><h3 className="text-sm font-semibold text-slate-800">Report History</h3></div>
-            <div className="divide-y divide-slate-50">
-              {reports.length === 0 ? (
-                <div className="px-5 py-8 text-center text-slate-400 text-sm">No reports generated</div>
-              ) : (
-                reports.map(r => (
-                  <div key={r.id} className="px-4 py-2 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-slate-700">{r.report_type} report</p>
-                      <p className="text-[10px] text-slate-400">{formatTime(r.created_at)} &middot; by {r.generated_by}</p>
-                    </div>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${r.status === 'completed' ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'}`}>{r.status}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'migrations' && (
-        <div className="space-y-4">
-          <div><h2 className="text-sm font-semibold text-slate-800">Migration Manager</h2><p className="text-xs text-slate-400">Apply & rollback DB migrations</p></div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm divide-y divide-slate-50">
-            {migrations.length === 0 ? (
-              <div className="px-5 py-8 text-center text-slate-400 text-sm">No migrations</div>
-            ) : (
-              migrations.map(m => (
-                <div key={m.id} className="px-5 py-3 flex items-center gap-4">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${m.status === 'applied' ? 'bg-green-100' : m.status === 'rolled_back' ? 'bg-orange-100' : m.status === 'failed' ? 'bg-red-100' : 'bg-slate-100'}`}>
-                    <ArrowUpRight size={16} className={m.status === 'applied' ? 'text-green-600' : m.status === 'rolled_back' ? 'text-orange-600' : m.status === 'failed' ? 'text-red-600' : 'text-slate-400'} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-mono text-slate-700">{m.migration_name}</p>
-                    <p className="text-[10px] text-slate-400">{m.details || 'No description'}</p>
-                  </div>
-                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${m.status === 'applied' ? 'bg-green-100 text-green-600' : m.status === 'pending' ? 'bg-slate-100 text-slate-600' : m.status === 'rolled_back' ? 'bg-orange-100 text-orange-600' : 'bg-red-100 text-red-600'}`}>{m.status}</span>
-                  {m.status === 'pending' && <button onClick={async () => { const res = await window.fetch(`${API}/enterprise/migrations/apply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ migration_name: m.migration_name }) }); if (res.ok) { showToast('Migration applied'); apiFetch('/enterprise/migrations').then(setMigrations); } else { const d = await res.json(); showToast(d.detail || 'Failed', true); }}} className="px-3 py-1.5 text-xs font-medium bg-green-100 text-green-600 rounded-lg hover:bg-green-200">Apply</button>}
-                  {m.status === 'applied' && <button onClick={async () => { if (confirm('Rollback this migration?')) { const res = await window.fetch(`${API}/enterprise/migrations/rollback`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ migration_name: m.migration_name }) }); if (res.ok) { showToast('Rolled back'); apiFetch('/enterprise/migrations').then(setMigrations); } else { const d = await res.json(); showToast(d.detail || 'Failed', true); }}}} className="px-3 py-1.5 text-xs font-medium bg-orange-100 text-orange-600 rounded-lg hover:bg-orange-200">Rollback</button>}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'anonymize' && (
-        <div className="space-y-4">
-          <div><h2 className="text-sm font-semibold text-slate-800">Data Anonymization</h2><p className="text-xs text-slate-400">Mask personal data for testing</p></div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <EyeOff size={20} className="text-amber-600" />
-              <div>
-                <p className="text-sm font-semibold text-slate-800">Anonymize Data</p>
-                <p className="text-xs text-slate-400">This will replace personal info with placeholder values</p>
-              </div>
-            </div>
-            <div className="flex gap-3 flex-wrap">
-              <select id="anon-target" className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20">
-                <option value="all">All Records</option>
-                <option value="users">Users Only</option>
-                <option value="schools">Schools Only</option>
-              </select>
-              <button onClick={async () => { const target = document.getElementById('anon-target').value; const res = await window.fetch(`${API}/enterprise/anonymize`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ target }) }); if (res.ok) { const d = await res.json(); showToast(`${d.count} records anonymized`); }}} className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg flex items-center gap-1"><EyeOff size={14} /> Anonymize</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'reload' && (
-        <div className="space-y-4">
-          <div><h2 className="text-sm font-semibold text-slate-800">Live Code Reload</h2><p className="text-xs text-slate-400">Server controls & cache management</p></div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-              <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center"><RotateCcw size={18} className="text-red-600" /></div><div><p className="text-sm font-semibold text-slate-800">Restart Server</p><p className="text-xs text-slate-400">Graceful restart</p></div></div>
-              <button onClick={async () => { const res = await window.fetch(`${API}/enterprise/reload/restart`, { method: 'POST', credentials: 'include' }); if (res.ok) showToast('Restart signal sent'); }} className="w-full py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg">Restart</button>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-              <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center"><Zap size={18} className="text-amber-600" /></div><div><p className="text-sm font-semibold text-slate-800">Clear Cache</p><p className="text-xs text-slate-400">Remove .pyc files</p></div></div>
-              <button onClick={async () => { const res = await window.fetch(`${API}/enterprise/reload/clear-cache`, { method: 'POST', credentials: 'include' }); if (res.ok) { const d = await res.json(); showToast(d.message); }}} className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg">Clear Cache</button>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-              <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center"><Server size={18} className="text-green-600" /></div><div><p className="text-sm font-semibold text-slate-800">Server Status</p><p className="text-xs text-slate-400">Current state</p></div></div>
-              <button onClick={async () => { const res = await window.fetch(`${API}/enterprise/reload/status`, { credentials: 'include' }); if (res.ok) { const d = await res.json(); showToast(`PID: ${d.pid}, Uptime: ${d.uptime_seconds}s`); }}} className="w-full py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg">Check Status</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <CommandPanel onNavigate={(tab) => setActiveTab(tab)} />
     </div>
   );
@@ -1394,13 +1136,6 @@ function CommandPanel({ onNavigate }) {
     { label: 'Backup Manager', action: () => { onNavigate('backups'); setOpen(false); } },
     { label: 'Billing Analytics', action: () => { onNavigate('billing'); setOpen(false); } },
     { label: 'Integration Hub', action: () => { onNavigate('integrations'); setOpen(false); } },
-    { label: 'Smart Alerts', action: () => { onNavigate('alerts'); setOpen(false); } },
-    { label: 'Live Activity Feed', action: () => { onNavigate('feed'); setOpen(false); } },
-    { label: 'A/B Testing', action: () => { onNavigate('ab-tests'); setOpen(false); } },
-    { label: 'Report Generator', action: () => { onNavigate('reports'); setOpen(false); } },
-    { label: 'Migration Manager', action: () => { onNavigate('migrations'); setOpen(false); } },
-    { label: 'Data Anonymization', action: () => { onNavigate('anonymize'); setOpen(false); } },
-    { label: 'Live Code Reload', action: () => { onNavigate('reload'); setOpen(false); } },
   ];
 
   const filtered = input ? commands.filter(c => c.label.toLowerCase().includes(input.toLowerCase())) : commands;
