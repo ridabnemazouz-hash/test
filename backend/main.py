@@ -32,6 +32,7 @@ from routes.schools import router as schools_router
 from routes.dev import router as dev_router
 from routes.enterprise import router as enterprise_router
 from routes.subscriptions import router as subscriptions_router
+from routes.tournaments import router as tournaments_router
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,7 +46,8 @@ logger = logging.getLogger("edusaas")
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="EduSaaS API", version="2.0.0")
+root_path = "/api" if os.environ.get("VERCEL") else ""
+app = FastAPI(title="EduSaaS API", version="2.0.0", root_path=root_path)
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
@@ -93,12 +95,15 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         
         return response
 
-cors_origins = os.environ.get("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://[::1]:5173,http://localhost:3000,http://127.0.0.1:3000").split(",")
+# Configure CORS
+cors_origins_str = os.environ.get("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+cors_origins = [origin.strip() for origin in cors_origins_str.split(",") if origin.strip()]
 
-# Add CORS - restrict to known origins in production
+# Add CORS - This MUST be added before other custom middlewares if they use BaseHTTPMiddleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
@@ -134,6 +139,7 @@ app.include_router(schools_router)
 app.include_router(dev_router)
 app.include_router(enterprise_router)
 app.include_router(subscriptions_router)
+app.include_router(tournaments_router)
 
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)

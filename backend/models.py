@@ -691,3 +691,260 @@ class ReportRecord(Base):
     generated_by = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     completed_at = Column(DateTime, nullable=True)
+
+# === TOURNAMENT MODELS ===
+
+class TournamentDB(Base):
+    __tablename__ = "tournaments"
+    id = Column(Integer, primary_key=True, index=True)
+    school_id = Column(Integer, nullable=True, index=True)
+    name = Column(String, index=True)
+    city = Column(String)
+    venue = Column(String)  # Salle
+    tournament_type = Column(String)  # Singles, Doubles
+    format = Column(String, default="knockout")  # knockout, groups_knockout
+    num_teams = Column(Integer, default=8)
+    start_date = Column(DateTime)
+    end_date = Column(DateTime, nullable=True)
+    status = Column(String, default="draft")  # draft, registration, in_progress, completed
+    created_by = Column(Integer)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class ClubDB(Base):
+    __tablename__ = "clubs"
+    id = Column(Integer, primary_key=True, index=True)
+    school_id = Column(Integer, nullable=True, index=True)
+    name = Column(String, index=True)
+    city = Column(String)
+    logo_url = Column(String, nullable=True)
+    qr_code = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class TournamentRegistrationDB(Base):
+    __tablename__ = "tournament_registrations"
+    id = Column(Integer, primary_key=True, index=True)
+    tournament_id = Column(Integer, index=True)
+    club_id = Column(Integer, index=True)
+    registered_at = Column(DateTime, default=datetime.datetime.utcnow)
+    status = Column(String, default="registered")  # registered, confirmed, cancelled
+
+class PlayerDB(Base):
+    __tablename__ = "players"
+    id = Column(Integer, primary_key=True, index=True)
+    school_id = Column(Integer, nullable=True, index=True)
+    name = Column(String, index=True)
+    age = Column(Integer, nullable=True)
+    level = Column(String)  # beginner, intermediate, advanced, professional
+    club_id = Column(Integer, nullable=True, index=True)
+    qr_code = Column(String, nullable=True)
+    points = Column(Integer, default=0)
+    wins = Column(Integer, default=0)
+    losses = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class MatchDB(Base):
+    __tablename__ = "matches"
+    id = Column(Integer, primary_key=True, index=True)
+    tournament_id = Column(Integer, index=True)
+    round = Column(Integer)  # 1, 2, 3, etc.
+    match_number = Column(Integer)
+    player1_id = Column(Integer, nullable=True)
+    player2_id = Column(Integer, nullable=True)
+    player1_name = Column(String, nullable=True)
+    player2_name = Column(String, nullable=True)
+    club1_id = Column(Integer, nullable=True)
+    club2_id = Column(Integer, nullable=True)
+    venue = Column(String, nullable=True)
+    scheduled_time = Column(DateTime, nullable=True)
+    start_time = Column(DateTime, nullable=True)
+    score1 = Column(Integer, nullable=True)
+    score2 = Column(Integer, nullable=True)
+    winner_id = Column(Integer, nullable=True)
+    status = Column(String, default="scheduled")  # scheduled, in_progress, completed, cancelled
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class GroupStageDB(Base):
+    __tablename__ = "group_stages"
+    id = Column(Integer, primary_key=True, index=True)
+    tournament_id = Column(Integer, index=True)
+    group_name = Column(String)  # A, B, C, D
+    player_id = Column(Integer, index=True)
+    player_name = Column(String)
+    club_id = Column(Integer, nullable=True)
+    played = Column(Integer, default=0)
+    won = Column(Integer, default=0)
+    lost = Column(Integer, default=0)
+    points = Column(Integer, default=0)
+
+class AttendanceDB(Base):
+    __tablename__ = "match_attendance"
+    id = Column(Integer, primary_key=True, index=True)
+    match_id = Column(Integer, index=True)
+    club_id = Column(Integer, nullable=True)
+    player_id = Column(Integer, nullable=True)
+    check_in_time = Column(DateTime, default=datetime.datetime.utcnow)
+    checked_in = Column(Boolean, default=True)
+
+# Tournament Schemas
+class TournamentCreate(BaseModel):
+    name: str
+    city: str
+    venue: str
+    tournament_type: str  # Singles, Doubles
+    format: str = "knockout"
+    num_teams: int = 8
+    start_date: datetime.datetime
+    end_date: Optional[datetime.datetime] = None
+
+class TournamentUpdate(BaseModel):
+    name: Optional[str] = None
+    city: Optional[str] = None
+    venue: Optional[str] = None
+    tournament_type: Optional[str] = None
+    format: Optional[str] = None
+    num_teams: Optional[int] = None
+    start_date: Optional[datetime.datetime] = None
+    end_date: Optional[datetime.datetime] = None
+    status: Optional[str] = None
+
+class TournamentResponse(BaseModel):
+    id: int
+    school_id: Optional[int] = None
+    name: str
+    city: str
+    venue: str
+    tournament_type: str
+    format: str
+    num_teams: int
+    start_date: Optional[datetime.datetime] = None
+    end_date: Optional[datetime.datetime] = None
+    status: str
+    created_by: Optional[int] = None
+    created_at: Optional[datetime.datetime] = None
+    class Config:
+        from_attributes = True
+
+class ClubCreate(BaseModel):
+    name: str
+    city: str
+    logo_url: Optional[str] = None
+
+class ClubUpdate(BaseModel):
+    name: Optional[str] = None
+    city: Optional[str] = None
+    logo_url: Optional[str] = None
+
+class ClubResponse(BaseModel):
+    id: int
+    school_id: Optional[int] = None
+    name: str
+    city: str
+    logo_url: Optional[str] = None
+    qr_code: Optional[str] = None
+    created_at: Optional[datetime.datetime] = None
+    class Config:
+        from_attributes = True
+
+class PlayerCreate(BaseModel):
+    name: str
+    age: Optional[int] = None
+    level: str
+    club_id: Optional[int] = None
+
+class PlayerUpdate(BaseModel):
+    name: Optional[str] = None
+    age: Optional[int] = None
+    level: Optional[str] = None
+    club_id: Optional[int] = None
+
+class PlayerResponse(BaseModel):
+    id: int
+    school_id: Optional[int] = None
+    name: str
+    age: Optional[int] = None
+    level: str
+    club_id: Optional[int] = None
+    qr_code: Optional[str] = None
+    points: int
+    wins: int
+    losses: int
+    created_at: Optional[datetime.datetime] = None
+    class Config:
+        from_attributes = True
+
+class MatchCreate(BaseModel):
+    tournament_id: int
+    round: int
+    match_number: int
+    player1_id: Optional[int] = None
+    player2_id: Optional[int] = None
+    player1_name: Optional[str] = None
+    player2_name: Optional[str] = None
+    club1_id: Optional[int] = None
+    club2_id: Optional[int] = None
+    venue: Optional[str] = None
+    scheduled_time: Optional[datetime.datetime] = None
+
+class MatchUpdate(BaseModel):
+    score1: Optional[int] = None
+    score2: Optional[int] = None
+    winner_id: Optional[int] = None
+    status: Optional[str] = None
+    start_time: Optional[datetime.datetime] = None
+    venue: Optional[str] = None
+
+class MatchResponse(BaseModel):
+    id: int
+    tournament_id: int
+    round: int
+    match_number: int
+    player1_id: Optional[int] = None
+    player2_id: Optional[int] = None
+    player1_name: Optional[str] = None
+    player2_name: Optional[str] = None
+    club1_id: Optional[int] = None
+    club2_id: Optional[int] = None
+    venue: Optional[str] = None
+    scheduled_time: Optional[datetime.datetime] = None
+    start_time: Optional[datetime.datetime] = None
+    score1: Optional[int] = None
+    score2: Optional[int] = None
+    winner_id: Optional[int] = None
+    status: str
+    created_at: Optional[datetime.datetime] = None
+    class Config:
+        from_attributes = True
+
+class GroupStageCreate(BaseModel):
+    tournament_id: int
+    group_name: str
+    player_id: int
+    player_name: str
+    club_id: Optional[int] = None
+
+class GroupStageResponse(BaseModel):
+    id: int
+    tournament_id: int
+    group_name: str
+    player_id: int
+    player_name: str
+    club_id: Optional[int] = None
+    played: int
+    won: int
+    lost: int
+    points: int
+    class Config:
+        from_attributes = True
+
+class TournamentRegistrationCreate(BaseModel):
+    tournament_id: int
+    club_id: int
+
+class TournamentRegistrationResponse(BaseModel):
+    id: int
+    tournament_id: int
+    club_id: int
+    registered_at: Optional[datetime.datetime] = None
+    status: str
+    class Config:
+        from_attributes = True

@@ -69,17 +69,34 @@ export function Parents() {
     setFormLoading(true);
     setError('');
     try {
-            const res = await fetch(`${API}/auth/register`, {
+      // Backend /auth/register uses Form fields (multipart/form-data), not JSON
+      const formPayload = new FormData();
+      formPayload.append('name', formData.name);
+      formPayload.append('email', formData.email);
+      formPayload.append('password', formData.password);
+      formPayload.append('role', 'Parent');
+
+      const res = await fetch(`${API}/auth/register`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name: formData.name, email: formData.email, password: formData.password, role: 'Parent' }),
+        body: formPayload, // No Content-Type header — browser sets it automatically with boundary
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail || 'Failed to add parent');
+        let msg = 'Failed to add parent';
+        if (err.detail) {
+          if (Array.isArray(err.detail)) msg = err.detail.map(e => e.msg || JSON.stringify(e)).join(', ');
+          else if (typeof err.detail === 'string') msg = err.detail;
+        }
+        throw new Error(msg);
       }
       const data = await res.json();
+
+      // Auto-approve the newly created parent
+      if (data.id) {
+        await fetch(`${API}/auth/approve/${data.id}`, { method: 'PUT', credentials: 'include' });
+      }
+
       setParents(prev => [...prev, {
         id: data.id || Date.now(), name: formData.name, email: formData.email,
         childName: formData.childName, status: 'Active',
@@ -206,7 +223,7 @@ export function Parents() {
         </div>
       </Modal>
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={t(lang, 'addNewParent')}>
+      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setError(''); setFormData({ name: '', email: '', password: '', childName: '' }); }} title={t(lang, 'addNewParent')}>
         <form onSubmit={handleAdd} className="space-y-4">
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>}
           <div>

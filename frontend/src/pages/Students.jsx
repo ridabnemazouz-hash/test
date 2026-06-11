@@ -94,7 +94,12 @@ export function Students() {
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.detail || 'Failed to add student');
+        let msg = 'Failed to add student';
+        if (err.detail) {
+          if (Array.isArray(err.detail)) msg = err.detail.map(e => e.msg || JSON.stringify(e)).join(', ');
+          else if (typeof err.detail === 'string') msg = err.detail;
+        }
+        throw new Error(msg);
       }
       const result = await res.json();
       const avatar = photoPreview || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=6366f1&color=fff`;

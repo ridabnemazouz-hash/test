@@ -1,9 +1,16 @@
 import React from 'react';
 import { cn } from '../../utils';
 
-export function Card({ className, children, ...props }) {
+export function Card({ className, children, hover = false, ...props }) {
   return (
-    <div className={cn('bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden', className)} {...props}>
+    <div
+      className={cn(
+        'bg-[var(--surface)] rounded-xl border border-[var(--border)] transition-all duration-200',
+        hover && 'hover:border-[var(--border)] hover:shadow-sm hover:-translate-y-0.5',
+        className
+      )}
+      {...props}
+    >
       {children}
     </div>
   );
@@ -11,7 +18,7 @@ export function Card({ className, children, ...props }) {
 
 export function CardHeader({ className, children, ...props }) {
   return (
-    <div className={cn('px-6 py-4 border-b border-slate-100', className)} {...props}>
+    <div className={cn('px-5 py-4 border-b border-[var(--border-light)]', className)} {...props}>
       {children}
     </div>
   );
@@ -19,15 +26,31 @@ export function CardHeader({ className, children, ...props }) {
 
 export function CardTitle({ className, children, ...props }) {
   return (
-    <h3 className={cn('text-lg font-semibold text-slate-800', className)} {...props}>
+    <h3 className={cn('text-[15px] font-semibold text-[var(--text-primary)] tracking-tight', className)} {...props}>
       {children}
     </h3>
   );
 }
 
+export function CardDescription({ className, children, ...props }) {
+  return (
+    <p className={cn('text-sm text-[var(--text-tertiary)] mt-0.5', className)} {...props}>
+      {children}
+    </p>
+  );
+}
+
 export function CardContent({ className, children, ...props }) {
   return (
-    <div className={cn('p-6', className)} {...props}>
+    <div className={cn('p-5', className)} {...props}>
+      {children}
+    </div>
+  );
+}
+
+export function CardFooter({ className, children, ...props }) {
+  return (
+    <div className={cn('px-5 py-3 border-t border-[var(--border-light)] flex items-center gap-2', className)} {...props}>
       {children}
     </div>
   );

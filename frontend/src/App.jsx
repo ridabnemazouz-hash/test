@@ -38,6 +38,10 @@ import { IntegrationsHub } from './pages/IntegrationsHub';
 import { VideoRooms } from './pages/VideoRooms';
 import { Schools } from './pages/Schools';
 import { DevDB } from './pages/DevDB';
+import { Tournaments } from './pages/Tournaments';
+import { Clubs } from './pages/Clubs';
+import { Players } from './pages/Players';
+import { Matches } from './pages/Matches';
 
 function App() {
   return (
@@ -88,6 +92,10 @@ function App() {
             <Route path="payments" element={<Payments />} />
             <Route path="rooms" element={<VideoRooms />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="tournaments" element={<Tournaments />} />
+            <Route path="clubs" element={<Clubs />} />
+            <Route path="players" element={<Players />} />
+            <Route path="matches" element={<Matches />} />
           </Route>
         </Routes>
       </BrowserRouter>
