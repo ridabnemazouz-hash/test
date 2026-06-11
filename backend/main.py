@@ -46,7 +46,7 @@ logger = logging.getLogger("edusaas")
 
 Base.metadata.create_all(bind=engine)
 
-root_path = "/api" if os.environ.get("VERCEL") else ""
+root_path = "/_/backend" if os.environ.get("VERCEL") else ""
 app = FastAPI(title="EduSaaS API", version="2.0.0", root_path=root_path)
 
 limiter = Limiter(key_func=get_remote_address)
