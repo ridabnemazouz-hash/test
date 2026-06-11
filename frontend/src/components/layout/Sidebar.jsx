@@ -55,10 +55,10 @@ export function Sidebar({ mobileOpen = false, onClose }) {
       { name: t(lang, navKeys.chat), path: '/school/chat', icon: MessageSquare, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
       { name: t(lang, navKeys.rooms), path: '/school/rooms', icon: Video, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
       { name: t(lang, navKeys.settings), path: '/school/settings', icon: Settings, roles: ['Super Admin', 'Admin', 'Teacher', 'Student', 'Parent'] },
-      { name: 'البطولات', path: '/school/tournaments', icon: Trophy, roles: ['Super Admin', 'Admin'] },
-      { name: 'الكلوبات', path: '/school/clubs', icon: Users, roles: ['Super Admin', 'Admin'] },
-      { name: 'اللاعبون', path: '/school/players', icon: User, roles: ['Super Admin', 'Admin'] },
-      { name: 'المباريات', path: '/school/matches', icon: Calendar, roles: ['Super Admin', 'Admin'] },
+      { name: t(lang, navKeys.tournaments), path: '/school/tournaments', icon: Trophy, roles: ['Super Admin', 'Admin'] },
+      { name: t(lang, navKeys.clubs), path: '/school/clubs', icon: Users, roles: ['Super Admin', 'Admin'] },
+      { name: t(lang, navKeys.players), path: '/school/players', icon: User, roles: ['Super Admin', 'Admin'] },
+      { name: t(lang, navKeys.matches), path: '/school/matches', icon: Calendar, roles: ['Super Admin', 'Admin'] },
     ];
 
     return items.filter(item => {

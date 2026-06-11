@@ -34,7 +34,7 @@ export function Clubs() {
   };
 
   const deleteClub = async (id) => {
-    if (!confirm('حذف الكلوب؟')) return;
+    if (!confirm('Delete club?')) return;
     await fetch(`${API}/tournaments/clubs/${id}`, { method: 'DELETE', credentials: 'include' });
     fetchClubs();
   };
@@ -42,8 +42,8 @@ export function Clubs() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold flex items-center gap-2"><Users className="w-6 h-6 text-blue-500" /> الكلوبات</h1>
-        <Button onClick={() => setShowAdd(true)} className="flex items-center gap-2"><Plus className="w-4 h-4" /> إضافة كلوب</Button>
+        <h1 className="text-2xl font-bold flex items-center gap-2"><Users className="w-6 h-6 text-blue-500" /> Clubs</h1>
+        <Button onClick={() => setShowAdd(true)} className="flex items-center gap-2"><Plus className="w-4 h-4" /> Add Club</Button>
       </div>
 
       {loading ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div> : (
@@ -57,7 +57,7 @@ export function Clubs() {
                   <QrCode className="w-4 h-4" /> {club.qr_code}
                 </div>
               )}
-              <Button size="sm" variant="danger" onClick={() => deleteClub(club.id)}>حذف</Button>
+              <Button size="sm" variant="danger" onClick={() => deleteClub(club.id)}>Delete</Button>
             </Card>
           ))}
         </div>
@@ -67,13 +67,13 @@ export function Clubs() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="w-full max-w-md p-6 space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">إضافة كلوب</h2>
+              <h2 className="text-xl font-bold">Add Club</h2>
               <button onClick={() => setShowAdd(false)}><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <input type="text" placeholder="اسم الكلوب" className="w-full p-2 border rounded" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
-              <input type="text" placeholder="المدينة" className="w-full p-2 border rounded" value={form.city} onChange={e => setForm({...form, city: e.target.value})} required />
-              <Button type="submit" className="w-full">إنشاء</Button>
+              <input type="text" placeholder="Club Name" className="w-full p-2 border rounded" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
+              <input type="text" placeholder="City" className="w-full p-2 border rounded" value={form.city} onChange={e => setForm({...form, city: e.target.value})} required />
+              <Button type="submit" className="w-full">Create</Button>
             </form>
           </Card>
         </div>

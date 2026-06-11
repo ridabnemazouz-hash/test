@@ -42,13 +42,13 @@ export function Players() {
   };
 
   const deletePlayer = async (id) => {
-    if (!confirm('حذف اللاعب؟')) return;
+    if (!confirm('Delete player?')) return;
     await fetch(`${API}/tournaments/players/${id}`, { method: 'DELETE', credentials: 'include' });
     fetchPlayers();
   };
 
   const getLevelLabel = (level) => {
-    const labels = { beginner: 'مبتدئ', intermediate: 'متوسط', advanced: 'متقدم', professional: 'محترف' };
+    const labels = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced', professional: 'Professional' };
     return labels[level] || level;
   };
 
@@ -60,8 +60,8 @@ export function Players() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold flex items-center gap-2"><User className="w-6 h-6 text-green-500" /> اللاعبون</h1>
-        <Button onClick={() => setShowAdd(true)} className="flex items-center gap-2"><Plus className="w-4 h-4" /> إضافة لاعب</Button>
+        <h1 className="text-2xl font-bold flex items-center gap-2"><User className="w-6 h-6 text-green-500" /> Players</h1>
+        <Button onClick={() => setShowAdd(true)} className="flex items-center gap-2"><Plus className="w-4 h-4" /> Add Player</Button>
       </div>
 
       {loading ? <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin" /></div> : (
@@ -69,12 +69,12 @@ export function Players() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="p-3 text-right">الاسم</th>
-                <th className="p-3 text-right">العمر</th>
-                <th className="p-3 text-right">المستوى</th>
-                <th className="p-3 text-right">الكلوب</th>
-                <th className="p-3 text-right">النقاط</th>
-                <th className="p-3 text-right">فوز/خسارة</th>
+                <th className="p-3 text-right">Name</th>
+                <th className="p-3 text-right">Age</th>
+                <th className="p-3 text-right">Level</th>
+                <th className="p-3 text-right">Club</th>
+                <th className="p-3 text-right">Points</th>
+                <th className="p-3 text-right">Wins/Losses</th>
                 <th className="p-3 text-right"></th>
               </tr>
             </thead>
@@ -87,7 +87,7 @@ export function Players() {
                   <td className="p-3">{clubs.find(c => c.id === p.club_id)?.name || '-'}</td>
                   <td className="p-3"><span className="flex items-center gap-1"><Trophy className="w-4 h-4 text-amber-500" /> {p.points}</span></td>
                   <td className="p-3"><span className="text-green-600">{p.wins}W</span> / <span className="text-red-600">{p.losses}L</span></td>
-                  <td className="p-3"><Button size="sm" variant="danger" onClick={() => deletePlayer(p.id)}>حذف</Button></td>
+                  <td className="p-3"><Button size="sm" variant="danger" onClick={() => deletePlayer(p.id)}>Delete</Button></td>
                 </tr>
               ))}
             </tbody>
@@ -99,23 +99,23 @@ export function Players() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="w-full max-w-md p-6 space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">إضافة لاعب</h2>
+              <h2 className="text-xl font-bold">Add Player</h2>
               <button onClick={() => setShowAdd(false)}><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <input type="text" placeholder="اسم اللاعب" className="w-full p-2 border rounded" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
-              <input type="number" placeholder="العمر (اختياري)" className="w-full p-2 border rounded" value={form.age} onChange={e => setForm({...form, age: e.target.value})} />
+              <input type="text" placeholder="Player Name" className="w-full p-2 border rounded" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
+              <input type="number" placeholder="Age (Optional)" className="w-full p-2 border rounded" value={form.age} onChange={e => setForm({...form, age: e.target.value})} />
               <select className="w-full p-2 border rounded" value={form.level} onChange={e => setForm({...form, level: e.target.value})}>
-                <option value="beginner">مبتدئ</option>
-                <option value="intermediate">متوسط</option>
-                <option value="advanced">متقدم</option>
-                <option value="professional">محترف</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+                <option value="professional">Professional</option>
               </select>
               <select className="w-full p-2 border rounded" value={form.club_id} onChange={e => setForm({...form, club_id: e.target.value})}>
-                <option value="">بدون كلوب</option>
+                <option value="">No Club</option>
                 {clubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
-              <Button type="submit" className="w-full">إنشاء</Button>
+              <Button type="submit" className="w-full">Create</Button>
             </form>
           </Card>
         </div>

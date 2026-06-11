@@ -26,6 +26,10 @@ export const translations = {
     rooms: 'Video Rooms',
     schools: 'Schools',
     logout: 'Logout',
+    tournaments: 'Tournaments',
+    clubs: 'Clubs',
+    players: 'Players',
+    matches: 'Matches',
     search: 'Search...',
     notifications: 'Notifications',
     // Auth
@@ -288,6 +292,10 @@ export const translations = {
     security: 'Journaux de Sécurité',
     rooms: 'Salles Vidéo',
     logout: 'Déconnexion',
+    tournaments: 'Tournois',
+    clubs: 'Clubs',
+    players: 'Joueurs',
+    matches: 'Matchs',
     search: 'Rechercher...',
     notifications: 'Notifications',
     // Auth
