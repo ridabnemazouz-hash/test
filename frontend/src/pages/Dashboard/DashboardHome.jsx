@@ -72,18 +72,18 @@ export function DashboardHome() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-black text-text-primary tracking-tight">
             Marhaba, {user.name} <span className="inline-block animate-bounce-slow">👋</span>
           </h1>
-          <p className="text-slate-500 mt-1 font-medium italic">"Education is the most powerful weapon which you can use to change the world."</p>
+          <p className="text-text-secondary mt-1 font-medium italic">"Education is the most powerful weapon which you can use to change the world."</p>
         </div>
-        <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+        <div className="flex items-center gap-3 bg-surface p-2 rounded-2xl shadow-sm border border-border-light">
           <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
             <Calendar size={20} />
           </div>
           <div className="pr-4">
-            <p className="text-[10px] uppercase font-black text-slate-400 tracking-wider leading-none mb-1">Today's Date</p>
-            <p className="text-sm font-bold text-slate-700 leading-none">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+            <p className="text-[10px] uppercase font-black text-text-tertiary tracking-wider leading-none mb-1">Today's Date</p>
+            <p className="text-sm font-bold text-text-secondary leading-none">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
           </div>
         </div>
       </div>
@@ -116,18 +116,18 @@ export function DashboardHome() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Chart */}
-        <Card className="lg:col-span-2 overflow-hidden border-0 shadow-xl shadow-slate-200/50">
-          <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-white">
+        <Card className="lg:col-span-2 overflow-hidden border-0 shadow-sm dark:shadow-none">
+          <div className="p-6 border-b border-border-light flex items-center justify-between bg-surface">
             <div>
-              <h3 className="text-lg font-bold text-slate-800">School Activity Overview</h3>
-              <p className="text-xs text-slate-400 font-medium">Daily attendance fluctuations this week</p>
+              <h3 className="text-lg font-bold text-text-primary">School Activity Overview</h3>
+              <p className="text-xs text-text-tertiary font-medium">Daily attendance fluctuations this week</p>
             </div>
-            <select className="bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-500 py-2 px-4 focus:ring-0 cursor-pointer">
+            <select className="bg-surface-secondary border-none rounded-xl text-xs font-bold text-text-secondary py-2 px-4 focus:ring-0 cursor-pointer">
               <option>Last 7 Days</option>
               <option>Last 30 Days</option>
             </select>
           </div>
-          <div className="p-6 bg-white">
+          <div className="p-6 bg-surface">
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={attendanceData}>
@@ -153,11 +153,11 @@ export function DashboardHome() {
 
         {/* Right Column: Quick Actions + Pending Approvals */}
         <div className="space-y-8">
-          <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
-            <div className="p-6 border-b border-slate-50 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-800">Quick Actions</h3>
+          <Card className="border-0 shadow-sm dark:shadow-none overflow-hidden">
+            <div className="p-6 border-b border-border-light flex items-center justify-between bg-surface">
+              <h3 className="text-lg font-bold text-text-primary">Quick Actions</h3>
             </div>
-            <div className="p-4 grid grid-cols-2 gap-3">
+            <div className="p-4 grid grid-cols-2 gap-3 bg-surface">
               {isAdmin && (
                 <>
                   <QuickAction icon={PlusIcon} label="Add Student" color="bg-indigo-50 text-indigo-600" onClick={() => navigate('/school/students')} />
@@ -186,28 +186,28 @@ export function DashboardHome() {
           </Card>
 
           {isAdmin && (
-            <Card className="border-0 shadow-xl shadow-slate-200/50 overflow-hidden">
-              <div className="p-6 border-b border-slate-50 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-slate-800">Pending Approvals</h3>
+            <Card className="border-0 shadow-sm dark:shadow-none overflow-hidden">
+              <div className="p-6 border-b border-border-light flex items-center justify-between bg-surface">
+                <h3 className="text-lg font-bold text-text-primary">Pending Approvals</h3>
                 <span className="bg-rose-100 text-rose-600 text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider animate-pulse">4 New</span>
               </div>
-              <div className="p-0">
-                <div className="divide-y divide-slate-50">
+              <div className="p-0 bg-surface">
+                <div className="divide-y divide-border-light">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="p-4 flex items-center gap-3 hover:bg-slate-50 transition-colors cursor-pointer group">
-                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-400 group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
+                    <div key={i} className="p-4 flex items-center gap-3 hover:bg-surface-secondary transition-colors cursor-pointer group">
+                      <div className="w-10 h-10 rounded-full bg-surface-tertiary flex items-center justify-center text-xs font-bold text-text-tertiary group-hover:bg-indigo-100 group-hover:text-indigo-600 transition-colors">
                         {['JS', 'MK', 'OL'][i-1]}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-slate-800 truncate">New Account Request</p>
-                        <p className="text-[10px] text-slate-400 font-medium">Applied for Teacher role · 2h ago</p>
+                        <p className="text-sm font-bold text-text-primary truncate">New Account Request</p>
+                        <p className="text-[10px] text-text-tertiary font-medium">Applied for Teacher role · 2h ago</p>
                       </div>
-                      <ArrowUpRight size={16} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                      <ArrowUpRight size={16} className="text-text-muted group-hover:text-indigo-500 transition-colors" />
                     </div>
                   ))}
                 </div>
-                <div className="p-4 bg-slate-50/50">
-                  <button className="w-full py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm" onClick={() => navigate('/school/accounts')}>
+                <div className="p-4 bg-surface-secondary">
+                  <button className="w-full py-2 bg-surface border border-border rounded-xl text-xs font-bold text-text-secondary hover:border-indigo-200 hover:text-indigo-600 transition-all shadow-sm" onClick={() => navigate('/school/accounts')}>
                     View All Requests
                   </button>
                 </div>
@@ -229,20 +229,20 @@ function StatCard({ title, value, icon: Icon, color, trend }) {
   };
 
   return (
-    <Card className="border-0 shadow-xl shadow-slate-200/40 overflow-hidden hover:translate-y-[-4px] transition-all duration-300 group">
-      <div className="p-6 flex flex-col">
+    <Card className="border-0 shadow-sm dark:shadow-none overflow-hidden hover:translate-y-[-4px] transition-all duration-300 group">
+      <div className="p-6 flex flex-col bg-surface">
         <div className="flex items-center justify-between mb-4">
           <div className={`p-3 rounded-2xl text-white shadow-lg ${colors[color]} group-hover:scale-110 transition-transform`}>
             <Icon size={24} />
           </div>
           <span className={`text-[10px] font-black px-2 py-1 rounded-lg uppercase tracking-wider ${
-            trend.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-slate-50 text-slate-400'
+            trend.startsWith('+') ? 'bg-green-50 text-green-600' : 'bg-surface-secondary text-text-tertiary'
           }`}>
             {trend}
           </span>
         </div>
-        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{title}</p>
-        <h4 className="text-3xl font-black text-slate-800 tracking-tight">{value}</h4>
+        <p className="text-xs font-bold text-text-tertiary uppercase tracking-widest mb-1">{title}</p>
+        <h4 className="text-3xl font-black text-text-primary tracking-tight">{value}</h4>
       </div>
     </Card>
   );
