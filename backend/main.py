@@ -34,13 +34,17 @@ from routes.enterprise import router as enterprise_router
 from routes.subscriptions import router as subscriptions_router
 from routes.tournaments import router as tournaments_router
 
+handlers = [logging.StreamHandler()]
+if not os.environ.get("VERCEL"):
+    try:
+        handlers.append(logging.FileHandler(os.path.join(os.path.dirname(__file__), "security.log")))
+    except Exception:
+        pass
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(os.path.join(os.path.dirname(__file__), "security.log")),
-        logging.StreamHandler()
-    ]
+    handlers=handlers
 )
 logger = logging.getLogger("edusaas")
 
@@ -142,7 +146,10 @@ app.include_router(subscriptions_router)
 app.include_router(tournaments_router)
 
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+except Exception:
+    pass
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
 @app.get("/")
